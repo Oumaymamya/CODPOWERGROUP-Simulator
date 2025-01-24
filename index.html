@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profitability Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input, select, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        .results {
+            margin-top: 20px;
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Profitability Simulator</h1>
+        <label>Selling Price (€):</label>
+        <input type="number" id="sellingPrice" placeholder="Enter selling price" />
+
+        <label>Product Cost (€):</label>
+        <input type="number" id="productCost" placeholder="Enter product cost" />
+
+        <label>Ad Spend (€):</label>
+        <input type="number" id="adSpend" placeholder="Enter ad spend" />
+
+        <label>Total Delivered Orders:</label>
+        <input type="number" id="deliveredOrders" placeholder="Enter total delivered orders" />
+
+        <label>Total Returned Orders:</label>
+        <input type="number" id="returnedOrders" placeholder="Enter total returned orders" />
+
+        <label>Select Country:</label>
+        <select id="country">
+            <option value="Spain">Spain</option>
+            <option value="Belgium">Belgium</option>
+            <option value="Belgium Prepaid">Belgium Prepaid</option>
+            <option value="Italy">Italy</option>
+            <option value="Portugal">Portugal</option>
+        </select>
+
+        <button onclick="calculateProfit()">Calculate</button>
+
+        <div class="results" id="results">
+            <h3>Results:</h3>
+            <p id="deliveredFee">Delivered Orders Fee: €0</p>
+            <p id="returnedFee">Returned Orders Fee: €0</p>
+            <p id="totalCost">Total Cost: €0</p>
+            <p id="totalRevenue">Total Revenue: €0</p>
+            <p id="grossProfit">Gross Profit: €0</p>
+            <p id="profitMargin">Profit Margin: 0%</p>
+        </div>
+    </div>
+
+    <script>
+        const platformFees = {
+            "Spain": { "shipping": 6, "fulfillment": 1.5, "returned": 7.5, "cod": 0.05, "upsell": 1, "returnManagement": 1, "callCenter": 1.5, "delivered": 1.5, "followup": 1 },
+            "Belgium": { "shipping": 7, "fulfillment": 1.5, "returned": 8, "cod": 7, "upsell": 1, "returnManagement": 1, "callCenter": 1.5, "delivered": 1.5, "followup": 1 },
+            "Belgium Prepaid": { "shipping": 8, "fulfillment": 1.5, "returned": 8, "cod": 0, "upsell": 1, "returnManagement": 1, "callCenter": 1.5, "delivered": 1.5, "followup": 1 },
+            "Italy": { "shipping": 7, "fulfillment": 1.5, "returned": 7.5, "cod": 5, "upsell": 1, "returnManagement": 1, "callCenter": 1.5, "delivered": 1.5, "followup": 1 },
+            "Portugal": { "shipping": 6, "fulfillment": 1.5, "returned": 7.5, "cod": 0.05, "upsell": 1, "returnManagement": 1, "callCenter": 1.5, "delivered": 1.5, "followup": 1 }
+        };
+
+        function calculateProfit() {
+            const sellingPrice = parseFloat(document.getElementById("sellingPrice").value) || 0;
+            const productCost = parseFloat(document.getElementById("productCost").value) || 0;
+            const adSpend = parseFloat(document.getElementById("adSpend").value) || 0;
+            const deliveredOrders = parseFloat(document.getElementById("deliveredOrders").value) || 0;
+            const returnedOrders = parseFloat(document.getElementById("returnedOrders").value) || 0;
+            const country = document.getElementById("country").value;
+
+            const fees = platformFees[country];
+
+            // Calculate fees for delivered orders
+            const codFee = fees.cod > 1 ? fees.cod : deliveredOrders * fees.cod * sellingPrice;
+            const deliveredFee = deliveredOrders * (fees.shipping + fees.fulfillment + codFee + fees.upsell + fees.returnManagement + fees.callCenter + fees.delivered + fees.followup);
+
+            // Calculate fees for returned orders (Upsell, Confirmed, Follow-up, and Return fees applied)
+            const returnedFee = returnedOrders * (fees.returned + fees.upsell + fees.callCenter + fees.followup);
+
+            // Total revenue and cost
+            const totalRevenue = deliveredOrders * sellingPrice;
+            const totalCost = deliveredFee + returnedFee + (deliveredOrders + returnedOrders) * (productCost + adSpend);
+            const grossProfit = totalRevenue - totalCost;
+            const profitMargin = (grossProfit / totalRevenue) * 100;
+
+            // Display results
+            document.getElementById("deliveredFee").innerText = `Delivered Orders Fee: €${deliveredFee.toFixed(2)}`;
+            document.getElementById("returnedFee").innerText = `Returned Orders Fee: €${returnedFee.toFixed(2)}`;
+            document.getElementById("totalCost").innerText = `Total Cost: €${totalCost.toFixed(2)}`;
+            document.getElementById("totalRevenue").innerText = `Total Revenue: €${totalRevenue.toFixed(2)}`;
+            document.getElementById("grossProfit").innerText = `Gross Profit: €${grossProfit.toFixed(2)}`;
+            document.getElementById("profitMargin").innerText = `Profit Margin: ${profitMargin.toFixed(2)}%`;
+        }
+    </script>
+</body>
+</html>

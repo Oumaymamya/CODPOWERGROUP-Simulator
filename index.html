@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -86,8 +87,8 @@
             const fees = platformFees[country];
 
             // Calculate fees for delivered orders
-            const codFee = fees.cod > 1 ? fees.cod : deliveredOrders * fees.cod * sellingPrice;
-            const deliveredFee = deliveredOrders * (fees.shipping + fees.fulfillment + codFee + fees.upsell + fees.returnManagement + fees.callCenter + fees.delivered + fees.followup);
+            const codFee = fees.cod > 1 ? fees.cod * deliveredOrders : fees.cod * deliveredOrders * sellingPrice;
+            const deliveredFee = deliveredOrders * (fees.shipping + fees.fulfillment + fees.upsell + fees.returnManagement + fees.callCenter + fees.delivered + fees.followup) + codFee;
 
             // Calculate fees for returned orders (Upsell, Confirmed, Follow-up, and Return fees applied)
             const returnedFee = returnedOrders * (fees.returned + fees.upsell + fees.callCenter + fees.followup);
